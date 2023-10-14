@@ -19,10 +19,16 @@ func (b *BigInt) GetHex() string {
 
 func XOR(a, b BigInt) string {
 	var length int
-	if len(a.value) > len(b.value) {
+	if len(a.value) == len(b.value) {
 		length = len(a.value)
+	} else if len(a.value) > len(b.value) {
+		length = len(a.value)
+		blocksNeeded := len(a.value) - len(b.value)
+		b.value = append(make([]uint64, blocksNeeded), b.value...)
 	} else {
 		length = len(b.value)
+		blocksNeeded := len(b.value) - len(a.value)
+		a.value = append(make([]uint64, blocksNeeded), a.value...)
 	}
 
 	blocks := make([]uint64, length)
@@ -63,7 +69,7 @@ func splitIntoBlocks(hexStr string) []uint64 {
 			break
 		}
 	}
-	// fmt.Println(blocks)
+	//fmt.Println(blocks)
 	return blocks
 }
 
