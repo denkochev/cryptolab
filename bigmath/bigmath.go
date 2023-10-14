@@ -63,7 +63,7 @@ func splitIntoBlocks(hexStr string) []uint64 {
 			break
 		}
 	}
-	fmt.Println(blocks)
+	// fmt.Println(blocks)
 	return blocks
 }
 

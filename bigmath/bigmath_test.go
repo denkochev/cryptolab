@@ -1,10 +1,36 @@
 package bigmath
 
 import (
+	"encoding/csv"
 	"errors"
 	"fmt"
+	"os"
 	"testing"
 )
+
+type Record struct {
+	HexNumber1 string
+	HexNumber2 string
+	XORResult  string
+}
+
+func TestXOR(t *testing.T) {
+	tests, _ := readCSV("./test_assets/hex_xor_dataset.csv")
+
+	for _, test := range tests {
+		testA := BigInt{}
+		testB := BigInt{}
+
+		testA.SetHex(test.HexNumber1)
+		testB.SetHex(test.HexNumber2)
+
+		result := XOR(testA, testB)
+
+		if result != test.XORResult {
+			t.Errorf("For input %s and %s expected %s, but got %s", test.HexNumber1, test.HexNumber2, test.XORResult, result)
+		}
+	}
+}
 
 func TestHexToInt(t *testing.T) {
 	tests := []struct {
@@ -98,4 +124,28 @@ func TestHexByteToInt(t *testing.T) {
 			}
 		}
 	}
+}
+
+func readCSV(filename string) ([]Record, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	lines, err := reader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var records []Record
+	for _, line := range lines[1:] { // Skip header
+		records = append(records, Record{
+			HexNumber1: line[0],
+			HexNumber2: line[1],
+			XORResult:  line[2],
+		})
+	}
+	return records, nil
 }
