@@ -6,7 +6,7 @@ import (
 )
 
 type BigInt struct {
-	value [4]uint64
+	value []uint64
 }
 
 func (b *BigInt) SetHex(hexValue string) {
@@ -14,16 +14,21 @@ func (b *BigInt) SetHex(hexValue string) {
 }
 
 func (b *BigInt) GetHex() string {
-	return blocksToHex(b.value)
+	return trimLeadingZeros(blocksToHex(b.value))
 }
 
-func splitIntoBlocks(hexStr string) [4]uint64 {
+func splitIntoBlocks(hexStr string) []uint64 {
 	// Конвертація рядка до числового формату (uint64)
 
-	var blocks [4]uint64
+	var amountOfBLocks int = (len(hexStr) / 16)
+	if len(hexStr)%16 > 0 {
+		amountOfBLocks += 1
+	}
+
+	blocks := make([]uint64, amountOfBLocks)
 	length := len(hexStr)
 
-	for i := 3; i >= 0; i-- {
+	for i := amountOfBLocks - 1; i >= 0; i-- {
 		// Витягуємо 16 символів (що відповідає 64 бітам) з кінця рядка
 		start := length - 16
 		if start < 0 {
@@ -41,16 +46,23 @@ func splitIntoBlocks(hexStr string) [4]uint64 {
 			break
 		}
 	}
-
+	fmt.Println(blocks)
 	return blocks
 }
 
-func blocksToHex(blocks [4]uint64) string {
+func blocksToHex(blocks []uint64) string {
 	var hexString string
 	for _, block := range blocks {
 		hexString += fmt.Sprintf("%016x", block)
 	}
 	return hexString
+}
+
+func trimLeadingZeros(s string) string {
+	i := 0
+	for ; i < len(s) && s[i] == '0'; i++ {
+	}
+	return s[i:]
 }
 
 func HexToInt(hex string) (uint64, error) {

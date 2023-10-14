@@ -3,23 +3,18 @@ package main
 import (
 	"cryptolab/bigmath"
 	"fmt"
-	"strconv"
 )
 
 func main() {
 
-	// bigInt := bigmath.BigInt{}
-	// bigInt.SetHex("e035c6cfa42609b998b883bc1699df885cef74e2b2cc372eb8fa7e7")
+	bigInt := bigmath.BigInt{}
 
-	// ... Так само для b, c, d, e, f
+	hexStr := "e035c6cfa42609b998b883bc1699df885cef74e2b2cc372eb8fa7e7"
 
-	//fmt.Println(bigInt.GetHex()) // виведе: e035c6cfa42609b998b883bc1699df885cef74e2b2cc372eb8fa7e7
+	// fmt.Println(hexStr)
+	bigInt.SetHex(hexStr)
 
-	myHex := "e035c6cfa42609b9"
+	result := bigInt.GetHex()
 
-	myMethod, _ := bigmath.HexToInt(myHex)
-	fmt.Println(myMethod)
-
-	num, _ := strconv.ParseUint(myHex, 16, 64)
-	fmt.Println(num)
+	fmt.Println(result)
 }
