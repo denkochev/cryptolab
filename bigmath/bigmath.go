@@ -17,6 +17,23 @@ func (b *BigInt) GetHex() string {
 	return trimLeadingZeros(blocksToHex(b.value))
 }
 
+func XOR(a, b BigInt) string {
+	var length int
+	if len(a.value) > len(b.value) {
+		length = len(a.value)
+	} else {
+		length = len(b.value)
+	}
+
+	blocks := make([]uint64, length)
+
+	for i := length - 1; i >= 0; i-- {
+		blocks[i] = a.value[i] ^ b.value[i]
+	}
+
+	return trimLeadingZeros(blocksToHex(blocks))
+}
+
 func splitIntoBlocks(hexStr string) []uint64 {
 	// Конвертація рядка до числового формату (uint64)
 
