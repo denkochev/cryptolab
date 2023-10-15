@@ -5,6 +5,9 @@ import (
 	"fmt"
 )
 
+/*
+API FOR LIBRARY
+*/
 type BigInt struct {
 	value []uint64
 }
@@ -17,6 +20,9 @@ func (b *BigInt) GetHex() string {
 	return trimLeadingZeros(blocksToHex(b.value))
 }
 
+/*
+BITWISE OPERATIONS
+*/
 func XOR(a, b BigInt) string {
 	var length int
 	if len(a.value) == len(b.value) {
@@ -40,54 +46,19 @@ func XOR(a, b BigInt) string {
 	return trimLeadingZeros(blocksToHex(blocks))
 }
 
-func splitIntoBlocks(hexStr string) []uint64 {
-	// Конвертація рядка до числового формату (uint64)
+func INV(a BigInt) string {
+	fmt.Println(a.value)
+	blocks := a.value
 
-	var amountOfBLocks int = (len(hexStr) / 16)
-	if len(hexStr)%16 > 0 {
-		amountOfBLocks += 1
+	for i := 0; i < len(a.value); i++ {
+		blocks[i] = ^blocks[i]
 	}
-
-	blocks := make([]uint64, amountOfBLocks)
-	length := len(hexStr)
-
-	for i := amountOfBLocks - 1; i >= 0; i-- {
-		// Витягуємо 16 символів (що відповідає 64 бітам) з кінця рядка
-		start := length - 16
-		if start < 0 {
-			start = 0
-		}
-		subStr := hexStr[start:length]
-
-		// Конвертуємо ці символи до uint64
-		num, _ := HexToInt(subStr)
-		blocks[i] = num
-
-		// Переміщуємося до наступного блоку
-		length -= 16
-		if length < 0 {
-			break
-		}
-	}
-	//fmt.Println(blocks)
-	return blocks
+	return blocksToHex(blocks)
 }
 
-func blocksToHex(blocks []uint64) string {
-	var hexString string
-	for _, block := range blocks {
-		hexString += fmt.Sprintf("%016x", block)
-	}
-	return hexString
-}
-
-func trimLeadingZeros(s string) string {
-	i := 0
-	for ; i < len(s) && s[i] == '0'; i++ {
-	}
-	return s[i:]
-}
-
+/*
+PARSING FUNCTIONS
+*/
 func HexToInt(hex string) (uint64, error) {
 	if len(hex) > 16 {
 		return 0, errors.New("overload 64-bit size")
@@ -123,4 +94,55 @@ func SingleHexToInt(symbol byte) (int, error) {
 	default:
 		return 0, fmt.Errorf("invalid hex character: %c", symbol)
 	}
+}
+
+/*
+HELPERS FUNCTIONS
+*/
+func splitIntoBlocks(hexStr string) []uint64 {
+	// Конвертація рядка до числового формату (uint64)
+
+	var amountOfBLocks int = (len(hexStr) / 16)
+	if len(hexStr)%16 > 0 {
+		amountOfBLocks += 1
+	}
+
+	blocks := make([]uint64, amountOfBLocks)
+	length := len(hexStr)
+
+	for i := amountOfBLocks - 1; i >= 0; i-- {
+		// Витягуємо 16 символів (що відповідає 64 бітам) з кінця рядка
+		start := length - 16
+		if start < 0 {
+			start = 0
+		}
+		subStr := hexStr[start:length]
+
+		// Конвертуємо ці символи до uint64
+		num, _ := HexToInt(subStr)
+		blocks[i] = num
+
+		// Переміщуємося до наступного блоку
+		length -= 16
+		if length < 0 {
+			break
+		}
+	}
+
+	return blocks
+}
+
+func blocksToHex(blocks []uint64) string {
+	var hexString string
+	for _, block := range blocks {
+		hexString += fmt.Sprintf("%016x", block)
+	}
+	return hexString
+}
+
+func trimLeadingZeros(s string) string {
+	i := 0
+	for ; i < len(s) && s[i] == '0'; i++ {
+	}
+	return s[i:]
 }
