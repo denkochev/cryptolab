@@ -14,6 +14,27 @@ type Record struct {
 	XORResult  string
 }
 
+type Inv struct {
+	BeforeHEX string
+	AfterHEX  string
+}
+
+func TestINV(t *testing.T) {
+	tests, _ := readCSV_INV("./test_assets/hex_dataset.csv")
+
+	for _, test := range tests {
+		testA := BigInt{}
+
+		testA.SetHex(test.BeforeHEX)
+
+		result := INV(testA)
+
+		if result != test.AfterHEX {
+			t.Errorf("For input %s expected %s, but got %s", test.BeforeHEX, test.AfterHEX, result)
+		}
+	}
+}
+
 func TestXOR(t *testing.T) {
 	tests, _ := readCSV("./test_assets/hex_xor_dataset.csv")
 
@@ -145,6 +166,29 @@ func readCSV(filename string) ([]Record, error) {
 			HexNumber1: line[0],
 			HexNumber2: line[1],
 			XORResult:  line[2],
+		})
+	}
+	return records, nil
+}
+
+func readCSV_INV(filename string) ([]Inv, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	lines, err := reader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var records []Inv
+	for _, line := range lines[1:] { // Skip header
+		records = append(records, Inv{
+			BeforeHEX: line[0],
+			AfterHEX:  line[1],
 		})
 	}
 	return records, nil

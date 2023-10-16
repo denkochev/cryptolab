@@ -49,11 +49,35 @@ func XOR(a, b BigInt) string {
 func INV(a BigInt) string {
 	fmt.Println(a.value)
 	blocks := a.value
+	/*
+		Часто перший блок може фактично займати менше 64 бітів,
+		якщо до такого блоку застосувати інверсію
+		інвертованими також опиняться непотрібні лідуючі біти, які дорівнюють 0!
+		для того, щоб цього не відбувалось перевіряємо фактичну кількість бітів першого блоку
+	*/
+	var iterator int
+	actualBits := getBits(blocks[0])
 
-	for i := 0; i < len(a.value); i++ {
+	if actualBits <= 32 {
+		// інвертую лише! дійсні біти
+		var mask uint64 = ((1 << 64) - 1)
+		blocks[0] = blocks[0] ^ mask
+		iterator = 1
+	} else {
+		iterator = 0
+	}
+
+	for i := iterator; i < len(blocks); i++ {
 		blocks[i] = ^blocks[i]
 	}
-	return blocksToHex(blocks)
+	fmt.Println(blocks)
+	var hexStr string
+	for _, val := range blocks {
+		hexStr += fmt.Sprintf("%02x", val)
+	}
+
+	return hexStr
+	// return trimLeadingZeros(blocksToHex(blocks))
 }
 
 /*
@@ -145,4 +169,17 @@ func trimLeadingZeros(s string) string {
 	for ; i < len(s) && s[i] == '0'; i++ {
 	}
 	return s[i:]
+}
+
+func getBits(num uint64) int {
+	if num == 0 {
+		return 1 // 0 requires 1 bit
+	}
+
+	bitsUsed := 0
+	for num > 0 {
+		bitsUsed++
+		num >>= 1
+	}
+	return bitsUsed
 }
