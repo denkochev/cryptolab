@@ -13,7 +13,11 @@ type BigInt struct {
 }
 
 func (b *BigInt) SetHex(hexValue string) {
-	b.value = splitIntoBlocks(hexValue)
+	var hex string = hexValue
+	if len(hex)%2 != 0 {
+		hex = "0" + hexValue
+	}
+	b.value = splitIntoBlocks(hex)
 }
 
 func (b *BigInt) GetHex() string {
@@ -25,6 +29,13 @@ BITWISE OPERATIONS
 */
 func XOR(a, b BigInt) string {
 	var length int
+	/*
+		проста оптимізація для приведення
+		двух блоків до однакового розміру
+		шляхом заповнення нулями старших бітів
+		значення з меншою кількістю блоків
+		(саме це дасть очікуваний результат при XOR)
+	*/
 	if len(a.value) == len(b.value) {
 		length = len(a.value)
 	} else if len(a.value) > len(b.value) {
@@ -42,7 +53,6 @@ func XOR(a, b BigInt) string {
 	for i := length - 1; i >= 0; i-- {
 		blocks[i] = a.value[i] ^ b.value[i]
 	}
-
 	return trimLeadingZeros(blocksToHex(blocks))
 }
 
@@ -124,42 +134,39 @@ func SingleHexToInt(symbol byte) (int, error) {
 HELPERS FUNCTIONS
 */
 func splitIntoBlocks(hexStr string) []uint64 {
-	// Конвертація рядка до числового формату (uint64)
-
-	var amountOfBLocks int = (len(hexStr) / 16)
-	if len(hexStr)%16 > 0 {
-		amountOfBLocks += 1
-	}
+	var amountOfBLocks int = (len(hexStr) / 2)
 
 	blocks := make([]uint64, amountOfBLocks)
-	length := len(hexStr)
 
-	for i := amountOfBLocks - 1; i >= 0; i-- {
-		// Витягуємо 16 символів (що відповідає 64 бітам) з кінця рядка
-		start := length - 16
-		if start < 0 {
-			start = 0
-		}
-		subStr := hexStr[start:length]
-
+	for i := 0; i < amountOfBLocks; i++ {
+		subStr := hexStr[i*2 : i*2+2]
 		// Конвертуємо ці символи до uint64
 		num, _ := HexToInt(subStr)
 		blocks[i] = num
+	}
+	return blocks
+}
 
-		// Переміщуємося до наступного блоку
-		length -= 16
-		if length < 0 {
-			break
-		}
+func intoBlocks(hexStr string) []uint64 {
+	// Конвертація рядка до числового формату (uint64)
+
+	binaryLength := len(hexStr) / 2
+	binary := make([]uint64, binaryLength)
+	for i := 0; i < binaryLength; i++ {
+		h := hexStr[i*2 : i*2+2]
+		msb, _ := SingleHexToInt(h[0])
+		msb *= 16
+		lsb, _ := SingleHexToInt(h[1])
+		binary[i] = uint64(255 - (msb + lsb))
 	}
 
-	return blocks
+	return binary
 }
 
 func blocksToHex(blocks []uint64) string {
 	var hexString string
-	for _, block := range blocks {
-		hexString += fmt.Sprintf("%016x", block)
+	for _, val := range blocks {
+		hexString += fmt.Sprintf("%02x", val)
 	}
 	return hexString
 }
@@ -168,7 +175,11 @@ func trimLeadingZeros(s string) string {
 	i := 0
 	for ; i < len(s) && s[i] == '0'; i++ {
 	}
-	return s[i:]
+	result := s[i:]
+	if len(result) == 0 {
+		return "0"
+	}
+	return result
 }
 
 func getBits(num uint64) int {

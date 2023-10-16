@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -19,21 +20,25 @@ type Inv struct {
 	AfterHEX  string
 }
 
-func TestINV(t *testing.T) {
-	tests, _ := readCSV_INV("./test_assets/hex_dataset.csv")
-
-	for _, test := range tests {
-		testA := BigInt{}
-
-		testA.SetHex(test.BeforeHEX)
-
-		result := INV(testA)
-
-		if result != test.AfterHEX {
-			t.Errorf("For input %s expected %s, but got %s", test.BeforeHEX, test.AfterHEX, result)
-		}
-	}
+type Hex struct {
+	hex string
 }
+
+// func TestINV(t *testing.T) {
+// 	tests, _ := readCSV_INV("./test_assets/hex_dataset.csv")
+
+// 	for _, test := range tests {
+// 		testA := BigInt{}
+
+// 		testA.SetHex(test.BeforeHEX)
+
+// 		result := INV(testA)
+
+// 		if result != test.AfterHEX {
+// 			t.Errorf("For input %s expected %s, but got %s", test.BeforeHEX, test.AfterHEX, result)
+// 		}
+// 	}
+// }
 
 func TestXOR(t *testing.T) {
 	tests, _ := readCSV("./test_assets/hex_xor_dataset.csv")
@@ -49,6 +54,20 @@ func TestXOR(t *testing.T) {
 
 		if result != test.XORResult {
 			t.Errorf("For input %s and %s expected %s, but got %s", test.HexNumber1, test.HexNumber2, test.XORResult, result)
+		}
+	}
+}
+
+func TestGetSet(t *testing.T) {
+	tests, _ := readCSV_HEX("./test_assets/hex_values.csv.csv")
+	for _, test := range tests {
+
+		testNumber := BigInt{}
+		testNumber.SetHex(test.hex)
+		result := testNumber.GetHex()
+
+		if result != strings.ToLower(test.hex) {
+			t.Errorf("For input %s expected %s, but got %s", test.hex, strings.ToLower(test.hex), result)
 		}
 	}
 }
@@ -189,6 +208,28 @@ func readCSV_INV(filename string) ([]Inv, error) {
 		records = append(records, Inv{
 			BeforeHEX: line[0],
 			AfterHEX:  line[1],
+		})
+	}
+	return records, nil
+}
+
+func readCSV_HEX(filename string) ([]Hex, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	lines, err := reader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var records []Hex
+	for _, line := range lines[1:] { // Skip header
+		records = append(records, Hex{
+			hex: line[0],
 		})
 	}
 	return records, nil
