@@ -24,21 +24,21 @@ type Hex struct {
 	hex string
 }
 
-// func TestINV(t *testing.T) {
-// 	tests, _ := readCSV_INV("./test_assets/hex_dataset.csv")
+func TestINV(t *testing.T) {
+	tests, _ := readCSV_INV("./test_assets/hex_inversion_dataset.csv")
 
-// 	for _, test := range tests {
-// 		testA := BigInt{}
+	for _, test := range tests {
+		testA := BigInt{}
 
-// 		testA.SetHex(test.BeforeHEX)
+		testA.SetHex(test.BeforeHEX)
 
-// 		result := INV(testA)
+		result := INV(testA)
 
-// 		if result != test.AfterHEX {
-// 			t.Errorf("For input %s expected %s, but got %s", test.BeforeHEX, test.AfterHEX, result)
-// 		}
-// 	}
-// }
+		if result != test.AfterHEX {
+			t.Errorf("For input %s expected %s, but got %s", test.BeforeHEX, test.AfterHEX, result)
+		}
+	}
+}
 
 func TestXOR(t *testing.T) {
 	tests, _ := readCSV("./test_assets/hex_xor_dataset.csv")

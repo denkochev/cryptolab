@@ -57,37 +57,14 @@ func XOR(a, b BigInt) string {
 }
 
 func INV(a BigInt) string {
-	fmt.Println(a.value)
 	blocks := a.value
-	/*
-		Часто перший блок може фактично займати менше 64 бітів,
-		якщо до такого блоку застосувати інверсію
-		інвертованими також опиняться непотрібні лідуючі біти, які дорівнюють 0!
-		для того, щоб цього не відбувалось перевіряємо фактичну кількість бітів першого блоку
-	*/
-	var iterator int
-	actualBits := getBits(blocks[0])
 
-	if actualBits <= 32 {
-		// інвертую лише! дійсні біти
-		var mask uint64 = ((1 << 64) - 1)
-		blocks[0] = blocks[0] ^ mask
-		iterator = 1
-	} else {
-		iterator = 0
+	for i := 0; i < len(blocks); i++ {
+		// маска на 8 бітів, для інвертування кожного блоку
+		var mask uint64 = ((1 << 8) - 1)
+		blocks[i] = mask ^ blocks[i]
 	}
-
-	for i := iterator; i < len(blocks); i++ {
-		blocks[i] = ^blocks[i]
-	}
-	fmt.Println(blocks)
-	var hexStr string
-	for _, val := range blocks {
-		hexStr += fmt.Sprintf("%02x", val)
-	}
-
-	return hexStr
-	// return trimLeadingZeros(blocksToHex(blocks))
+	return blocksToHex(blocks)
 }
 
 /*
@@ -144,23 +121,8 @@ func splitIntoBlocks(hexStr string) []uint64 {
 		num, _ := HexToInt(subStr)
 		blocks[i] = num
 	}
+
 	return blocks
-}
-
-func intoBlocks(hexStr string) []uint64 {
-	// Конвертація рядка до числового формату (uint64)
-
-	binaryLength := len(hexStr) / 2
-	binary := make([]uint64, binaryLength)
-	for i := 0; i < binaryLength; i++ {
-		h := hexStr[i*2 : i*2+2]
-		msb, _ := SingleHexToInt(h[0])
-		msb *= 16
-		lsb, _ := SingleHexToInt(h[1])
-		binary[i] = uint64(255 - (msb + lsb))
-	}
-
-	return binary
 }
 
 func blocksToHex(blocks []uint64) string {
