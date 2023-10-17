@@ -31,6 +31,24 @@ type Shift struct {
 	result string
 }
 
+func TestADD(t *testing.T) {
+	tests, _ := readCSV("./test_assets/hex_addition_dataset.csv")
+
+	for _, test := range tests {
+		testA := BigInt{}
+		testB := BigInt{}
+
+		testA.SetHex(test.HexNumber1)
+		testB.SetHex(test.HexNumber2)
+
+		result := ADD(testA, testB)
+
+		if result != test.BITResult {
+			t.Errorf("For input %s and %s expected %s, but got %s", test.HexNumber1, test.HexNumber2, test.BITResult, result)
+		}
+	}
+}
+
 func TestShiftL(t *testing.T) {
 	tests, _ := readCSV_Shift("./test_assets/hex_shiftLeft_test_cases.csv")
 

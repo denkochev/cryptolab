@@ -25,6 +25,38 @@ func (b *BigInt) GetHex() string {
 }
 
 /*
+ARITHMETIC OPERATIONS
+*/
+func ADD(a, b BigInt) string {
+	var length int
+	if len(a.value) == len(b.value) {
+		length = len(a.value)
+	} else if len(a.value) > len(b.value) {
+		length = len(a.value)
+		blocksNeeded := len(a.value) - len(b.value)
+		b.value = append(make([]uint64, blocksNeeded), b.value...)
+	} else {
+		length = len(b.value)
+		blocksNeeded := len(b.value) - len(a.value)
+		a.value = append(make([]uint64, blocksNeeded), a.value...)
+	}
+
+	blocks := make([]uint64, length)
+
+	var over uint64 = 0
+	for i := length - 1; i >= 0; i-- {
+		temp_sum := a.value[i] + b.value[i] + over
+		blocks[i] = temp_sum & 0xFF
+		over = temp_sum >> 8
+	}
+	if over != 0 {
+		blocks = append([]uint64{over}, blocks...)
+	}
+
+	return trimLeadingZeros(blocksToHex(blocks))
+}
+
+/*
 BITWISE OPERATIONS
 */
 func INV(a BigInt) string {
