@@ -24,6 +24,24 @@ type Hex struct {
 	hex string
 }
 
+func TestOR(t *testing.T) {
+	tests, _ := readCSV("./test_assets/hex_or_dataset.csv")
+
+	for _, test := range tests {
+		testA := BigInt{}
+		testB := BigInt{}
+
+		testA.SetHex(test.HexNumber1)
+		testB.SetHex(test.HexNumber2)
+
+		result := OR(testA, testB)
+
+		if result != test.XORResult {
+			t.Errorf("For input %s and %s expected %s, but got %s", test.HexNumber1, test.HexNumber2, test.XORResult, result)
+		}
+	}
+}
+
 func TestINV(t *testing.T) {
 	tests, _ := readCSV_INV("./test_assets/hex_inversion_dataset.csv")
 

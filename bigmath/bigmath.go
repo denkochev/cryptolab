@@ -27,6 +27,17 @@ func (b *BigInt) GetHex() string {
 /*
 BITWISE OPERATIONS
 */
+func INV(a BigInt) string {
+	blocks := a.value
+
+	for i := 0; i < len(blocks); i++ {
+		// маска на 8 бітів, для інвертування кожного блоку
+		var mask uint64 = ((1 << 8) - 1)
+		blocks[i] = mask ^ blocks[i]
+	}
+	return blocksToHex(blocks)
+}
+
 func XOR(a, b BigInt) string {
 	var length int
 	/*
@@ -34,7 +45,7 @@ func XOR(a, b BigInt) string {
 		двух блоків до однакового розміру
 		шляхом заповнення нулями старших бітів
 		значення з меншою кількістю блоків
-		(саме це дасть очікуваний результат при XOR)
+		(саме це дасть очікуваний результат при бітових операціях з двума гекс числами)
 	*/
 	if len(a.value) == len(b.value) {
 		length = len(a.value)
@@ -56,15 +67,27 @@ func XOR(a, b BigInt) string {
 	return trimLeadingZeros(blocksToHex(blocks))
 }
 
-func INV(a BigInt) string {
-	blocks := a.value
+func OR(a, b BigInt) string {
+	var length int
 
-	for i := 0; i < len(blocks); i++ {
-		// маска на 8 бітів, для інвертування кожного блоку
-		var mask uint64 = ((1 << 8) - 1)
-		blocks[i] = mask ^ blocks[i]
+	if len(a.value) == len(b.value) {
+		length = len(a.value)
+	} else if len(a.value) > len(b.value) {
+		length = len(a.value)
+		blocksNeeded := len(a.value) - len(b.value)
+		b.value = append(make([]uint64, blocksNeeded), b.value...)
+	} else {
+		length = len(b.value)
+		blocksNeeded := len(b.value) - len(a.value)
+		a.value = append(make([]uint64, blocksNeeded), a.value...)
 	}
-	return blocksToHex(blocks)
+
+	blocks := make([]uint64, length)
+
+	for i := length - 1; i >= 0; i-- {
+		blocks[i] = a.value[i] | b.value[i]
+	}
+	return trimLeadingZeros(blocksToHex(blocks))
 }
 
 /*
