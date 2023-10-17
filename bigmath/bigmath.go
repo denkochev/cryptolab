@@ -132,6 +132,29 @@ func ShiftL(a BigInt, bitsShift int) string {
 	return trimLeadingZeros(blocksToHex(blocks))
 }
 
+func ShiftR(a BigInt, bitsShift int) string {
+	blocks := a.value
+	// змінна для переносу зайвих бітів
+	var overflow uint64 = 0
+	for i := 0; i < len(blocks); i++ {
+		combined := (blocks[i] + (overflow << 8))
+		blocks[i] = (combined >> bitsShift) & 0xFF
+		overflow = combined & ((1 << bitsShift) - 1)
+
+	}
+
+	for overflow > 0 {
+		blocks = append(blocks, overflow&0xFF)
+		overflow >>= 8
+	}
+
+	for len(blocks) > 1 && blocks[0] == 0 {
+		blocks = blocks[1:]
+	}
+
+	return trimLeadingZeros(blocksToHex(blocks))
+}
+
 /*
 PARSING FUNCTIONS
 */

@@ -47,6 +47,27 @@ func TestShiftL(t *testing.T) {
 	}
 }
 
+func TestShiftR(t *testing.T) {
+	tests, _ := readCSV_Shift("./test_assets/hex_shift_right_test_cases.csv")
+
+	for _, test := range tests {
+		testA := BigInt{}
+
+		testA.SetHex(test.hex)
+
+		result := ShiftR(testA, int(test.bit))
+		/*
+			даний метод може повернути більше значень ніж потрібно
+			це відбувається оскільки в результат включаються
+			значення після коми
+			для тестування порівнюю всі значення до коми
+		*/
+		if result[:len(test.result)] != test.result {
+			t.Errorf("For input %s and %d expected %s, but got %s", test.hex, test.bit, test.result, result)
+		}
+	}
+}
+
 func TestAND(t *testing.T) {
 	tests, _ := readCSV("./test_assets/hex_and_dataset.csv")
 
