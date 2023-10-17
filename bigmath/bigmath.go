@@ -114,6 +114,24 @@ func AND(a, b BigInt) string {
 	return blocksToHex(blocks)
 }
 
+func ShiftL(a BigInt, bitsShift int) string {
+	blocks := a.value
+	// змінна для переносу зайвих бітів
+	var overflow uint64 = 0
+	for i := len(blocks) - 1; i >= 0; i-- {
+		shifted_value := (blocks[i] << bitsShift) + overflow
+		overflow = shifted_value >> 8
+		blocks[i] = shifted_value & 0xFF
+	}
+
+	for overflow > 0 {
+		blocks = append([]uint64{overflow & 0xFF}, blocks...)
+		overflow >>= 8
+	}
+
+	return trimLeadingZeros(blocksToHex(blocks))
+}
+
 /*
 PARSING FUNCTIONS
 */

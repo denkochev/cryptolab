@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -22,6 +23,28 @@ type Inv struct {
 
 type Hex struct {
 	hex string
+}
+
+type Shift struct {
+	hex    string
+	bit    int
+	result string
+}
+
+func TestShiftL(t *testing.T) {
+	tests, _ := readCSV_Shift("./test_assets/hex_shiftLeft_test_cases.csv")
+
+	for _, test := range tests {
+		testA := BigInt{}
+
+		testA.SetHex(test.hex)
+
+		result := ShiftL(testA, int(test.bit))
+
+		if result != test.result {
+			t.Errorf("For input %s and %d expected %s, but got %s", test.hex, test.bit, test.result, result)
+		}
+	}
 }
 
 func TestAND(t *testing.T) {
@@ -221,6 +244,31 @@ func readCSV(filename string) ([]Record, error) {
 			HexNumber1: line[0],
 			HexNumber2: line[1],
 			BITResult:  line[2],
+		})
+	}
+	return records, nil
+}
+
+func readCSV_Shift(filename string) ([]Shift, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	lines, err := reader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var records []Shift
+	for _, line := range lines[1:] { // Skip header
+		bit, _ := strconv.Atoi(line[1])
+		records = append(records, Shift{
+			hex:    line[0],
+			bit:    bit,
+			result: line[2],
 		})
 	}
 	return records, nil
