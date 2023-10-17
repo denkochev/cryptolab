@@ -56,6 +56,47 @@ func ADD(a, b BigInt) string {
 	return trimLeadingZeros(blocksToHex(blocks))
 }
 
+func SUB(a, b BigInt) string {
+	var length int
+	if len(a.value) == len(b.value) {
+		length = len(a.value)
+	} else if len(a.value) > len(b.value) {
+		length = len(a.value)
+		blocksNeeded := len(a.value) - len(b.value)
+		b.value = append(make([]uint64, blocksNeeded), b.value...)
+	} else {
+		length = len(b.value)
+		blocksNeeded := len(b.value) - len(a.value)
+		a.value = append(make([]uint64, blocksNeeded), a.value...)
+	}
+
+	blocks := make([]int, length)
+
+	var over int = 0
+	for i := length - 1; i >= 0; i-- {
+		temp_sum := int(a.value[i]) - int(b.value[i]) - over
+
+		if temp_sum < 0 {
+			temp_sum += (0xFF + 1)
+			over = 1
+		} else {
+			over = 0
+		}
+
+		blocks[i] = temp_sum
+	}
+	if over != 0 {
+		blocks = append([]int{over}, blocks...)
+	}
+
+	var uints []uint64
+	for _, v := range blocks {
+		uints = append(uints, uint64(v))
+	}
+
+	return trimLeadingZeros(blocksToHex(uints))
+}
+
 /*
 BITWISE OPERATIONS
 */
