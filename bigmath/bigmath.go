@@ -90,6 +90,30 @@ func OR(a, b BigInt) string {
 	return trimLeadingZeros(blocksToHex(blocks))
 }
 
+func AND(a, b BigInt) string {
+	var length int
+
+	if len(a.value) == len(b.value) {
+		length = len(a.value)
+	} else if len(a.value) > len(b.value) {
+		length = len(a.value)
+		blocksNeeded := len(a.value) - len(b.value)
+		b.value = append(make([]uint64, blocksNeeded), b.value...)
+	} else {
+		length = len(b.value)
+		blocksNeeded := len(b.value) - len(a.value)
+		a.value = append(make([]uint64, blocksNeeded), a.value...)
+	}
+
+	blocks := make([]uint64, length)
+
+	for i := length - 1; i >= 0; i-- {
+		blocks[i] = a.value[i] & b.value[i]
+	}
+	// not triming leading zeros!
+	return blocksToHex(blocks)
+}
+
 /*
 PARSING FUNCTIONS
 */

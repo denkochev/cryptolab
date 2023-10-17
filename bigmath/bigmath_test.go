@@ -12,7 +12,7 @@ import (
 type Record struct {
 	HexNumber1 string
 	HexNumber2 string
-	XORResult  string
+	BITResult  string
 }
 
 type Inv struct {
@@ -22,6 +22,24 @@ type Inv struct {
 
 type Hex struct {
 	hex string
+}
+
+func TestAND(t *testing.T) {
+	tests, _ := readCSV("./test_assets/hex_and_dataset.csv")
+
+	for _, test := range tests {
+		testA := BigInt{}
+		testB := BigInt{}
+
+		testA.SetHex(test.HexNumber1)
+		testB.SetHex(test.HexNumber2)
+
+		result := AND(testA, testB)
+
+		if result != test.BITResult {
+			t.Errorf("For input %s and %s expected %s, but got %s", test.HexNumber1, test.HexNumber2, test.BITResult, result)
+		}
+	}
 }
 
 func TestOR(t *testing.T) {
@@ -36,8 +54,8 @@ func TestOR(t *testing.T) {
 
 		result := OR(testA, testB)
 
-		if result != test.XORResult {
-			t.Errorf("For input %s and %s expected %s, but got %s", test.HexNumber1, test.HexNumber2, test.XORResult, result)
+		if result != test.BITResult {
+			t.Errorf("For input %s and %s expected %s, but got %s", test.HexNumber1, test.HexNumber2, test.BITResult, result)
 		}
 	}
 }
@@ -70,8 +88,8 @@ func TestXOR(t *testing.T) {
 
 		result := XOR(testA, testB)
 
-		if result != test.XORResult {
-			t.Errorf("For input %s and %s expected %s, but got %s", test.HexNumber1, test.HexNumber2, test.XORResult, result)
+		if result != test.BITResult {
+			t.Errorf("For input %s and %s expected %s, but got %s", test.HexNumber1, test.HexNumber2, test.BITResult, result)
 		}
 	}
 }
@@ -202,7 +220,7 @@ func readCSV(filename string) ([]Record, error) {
 		records = append(records, Record{
 			HexNumber1: line[0],
 			HexNumber2: line[1],
-			XORResult:  line[2],
+			BITResult:  line[2],
 		})
 	}
 	return records, nil

@@ -15,8 +15,8 @@ func main() {
 	numberA.SetHex(hexA)
 	numberB.SetHex(hexB)
 
-	result_OR := bigmath.OR(numberA, numberB)
-	fmt.Println(result_OR == "51bf608414ad5726a3c1bec098f77b1b54ffb2787f9d52cffde3d7ffe7cfefa6")
+	result_OR := bigmath.AND(numberA, numberB)
+	fmt.Println(result_OR, result_OR == "2601000264c0053da2420c00")
 
 	// resultINV := bigmath.INV(numberA)
 	// fmt.Println(resultINV)
