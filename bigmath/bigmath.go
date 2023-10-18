@@ -24,6 +24,10 @@ func (b *BigInt) GetHex() string {
 	return trimLeadingZeros(blocksToHex(b.value))
 }
 
+func (b *BigInt) GetBlocks() []uint64 {
+	return b.value
+}
+
 /*
 ARITHMETIC OPERATIONS
 */
@@ -95,6 +99,16 @@ func SUB(a, b BigInt) string {
 	}
 
 	return trimLeadingZeros(blocksToHex(uints))
+}
+
+func MOD(a BigInt, modulus uint64) uint64 {
+	var result uint64 = 0
+
+	blocks := a.value
+	for i := 0; i < len(blocks); i++ {
+		result = ((result << 32) + blocks[i]) % modulus
+	}
+	return result
 }
 
 /*

@@ -31,6 +31,22 @@ type Shift struct {
 	result string
 }
 
+func TestMOD(t *testing.T) {
+	tests, _ := readCSV_Shift("./test_assets/hex_modulo_dataset.csv")
+
+	for _, test := range tests {
+		testA := BigInt{}
+
+		testA.SetHex(test.hex)
+
+		result := MOD(testA, uint64(test.bit))
+
+		if result != uint64(result) {
+			t.Errorf("For input %s and %d expected %d, but got %d", test.hex, uint64(test.bit), uint64(test.bit), result)
+		}
+	}
+}
+
 func TestSUB(t *testing.T) {
 	tests, _ := readCSV("./test_assets/hex_subtraction_dataset.csv")
 
