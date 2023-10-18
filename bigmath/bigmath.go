@@ -21,7 +21,7 @@ func (b *BigInt) SetHex(hexValue string) {
 }
 
 func (b *BigInt) GetHex() string {
-	return trimLeadingZeros(blocksToHex(b.value))
+	return TrimLeadingZeros(blocksToHex(b.value))
 }
 
 func (b *BigInt) GetBlocks() []uint64 {
@@ -33,23 +33,26 @@ ARITHMETIC OPERATIONS
 */
 func ADD(a, b BigInt) string {
 	var length int
+	aBlocks := append([]uint64(nil), a.value...)
+	bBlocks := append([]uint64(nil), b.value...)
+
 	if len(a.value) == len(b.value) {
 		length = len(a.value)
 	} else if len(a.value) > len(b.value) {
 		length = len(a.value)
 		blocksNeeded := len(a.value) - len(b.value)
-		b.value = append(make([]uint64, blocksNeeded), b.value...)
+		bBlocks = append(make([]uint64, blocksNeeded), b.value...)
 	} else {
 		length = len(b.value)
 		blocksNeeded := len(b.value) - len(a.value)
-		a.value = append(make([]uint64, blocksNeeded), a.value...)
+		aBlocks = append(make([]uint64, blocksNeeded), a.value...)
 	}
 
 	blocks := make([]uint64, length)
 
 	var over uint64 = 0
 	for i := length - 1; i >= 0; i-- {
-		temp_sum := a.value[i] + b.value[i] + over
+		temp_sum := aBlocks[i] + bBlocks[i] + over
 		blocks[i] = temp_sum & 0xFF
 		over = temp_sum >> 8
 	}
@@ -57,28 +60,31 @@ func ADD(a, b BigInt) string {
 		blocks = append([]uint64{over}, blocks...)
 	}
 
-	return trimLeadingZeros(blocksToHex(blocks))
+	return TrimLeadingZeros(blocksToHex(blocks))
 }
 
 func SUB(a, b BigInt) string {
 	var length int
+	aBlocks := append([]uint64(nil), a.value...)
+	bBlocks := append([]uint64(nil), b.value...)
+
 	if len(a.value) == len(b.value) {
 		length = len(a.value)
 	} else if len(a.value) > len(b.value) {
 		length = len(a.value)
 		blocksNeeded := len(a.value) - len(b.value)
-		b.value = append(make([]uint64, blocksNeeded), b.value...)
+		bBlocks = append(make([]uint64, blocksNeeded), b.value...)
 	} else {
 		length = len(b.value)
 		blocksNeeded := len(b.value) - len(a.value)
-		a.value = append(make([]uint64, blocksNeeded), a.value...)
+		aBlocks = append(make([]uint64, blocksNeeded), a.value...)
 	}
 
 	blocks := make([]int, length)
 
 	var over int = 0
 	for i := length - 1; i >= 0; i-- {
-		temp_sum := int(a.value[i]) - int(b.value[i]) - over
+		temp_sum := int(aBlocks[i]) - int(bBlocks[i]) - over
 
 		if temp_sum < 0 {
 			temp_sum += (0xFF + 1)
@@ -98,13 +104,13 @@ func SUB(a, b BigInt) string {
 		uints = append(uints, uint64(v))
 	}
 
-	return trimLeadingZeros(blocksToHex(uints))
+	return TrimLeadingZeros(blocksToHex(uints))
 }
 
 func MOD(a BigInt, modulus uint64) uint64 {
 	var result uint64 = 0
 
-	blocks := a.value
+	blocks := append([]uint64(nil), a.value...)
 	for i := 0; i < len(blocks); i++ {
 		result = ((result << 32) + blocks[i]) % modulus
 	}
@@ -115,7 +121,7 @@ func MOD(a BigInt, modulus uint64) uint64 {
 BITWISE OPERATIONS
 */
 func INV(a BigInt) string {
-	blocks := a.value
+	blocks := append([]uint64(nil), a.value...)
 
 	for i := 0; i < len(blocks); i++ {
 		// маска на 8 бітів, для інвертування кожного блоку
@@ -127,6 +133,8 @@ func INV(a BigInt) string {
 
 func XOR(a, b BigInt) string {
 	var length int
+	aBlocks := append([]uint64(nil), a.value...)
+	bBlocks := append([]uint64(nil), b.value...)
 	/*
 		проста оптимізація для приведення
 		двух блоків до однакового розміру
@@ -139,70 +147,73 @@ func XOR(a, b BigInt) string {
 	} else if len(a.value) > len(b.value) {
 		length = len(a.value)
 		blocksNeeded := len(a.value) - len(b.value)
-		b.value = append(make([]uint64, blocksNeeded), b.value...)
+		bBlocks = append(make([]uint64, blocksNeeded), b.value...)
 	} else {
 		length = len(b.value)
 		blocksNeeded := len(b.value) - len(a.value)
-		a.value = append(make([]uint64, blocksNeeded), a.value...)
+		aBlocks = append(make([]uint64, blocksNeeded), a.value...)
 	}
 
 	blocks := make([]uint64, length)
 
 	for i := length - 1; i >= 0; i-- {
-		blocks[i] = a.value[i] ^ b.value[i]
+		blocks[i] = aBlocks[i] ^ bBlocks[i]
 	}
-	return trimLeadingZeros(blocksToHex(blocks))
+	return TrimLeadingZeros(blocksToHex(blocks))
 }
 
 func OR(a, b BigInt) string {
 	var length int
-
+	aBlocks := append([]uint64(nil), a.value...)
+	bBlocks := append([]uint64(nil), b.value...)
 	if len(a.value) == len(b.value) {
 		length = len(a.value)
 	} else if len(a.value) > len(b.value) {
 		length = len(a.value)
 		blocksNeeded := len(a.value) - len(b.value)
-		b.value = append(make([]uint64, blocksNeeded), b.value...)
+		bBlocks = append(make([]uint64, blocksNeeded), b.value...)
 	} else {
 		length = len(b.value)
 		blocksNeeded := len(b.value) - len(a.value)
-		a.value = append(make([]uint64, blocksNeeded), a.value...)
+		aBlocks = append(make([]uint64, blocksNeeded), a.value...)
 	}
 
 	blocks := make([]uint64, length)
 
 	for i := length - 1; i >= 0; i-- {
-		blocks[i] = a.value[i] | b.value[i]
+		blocks[i] = aBlocks[i] | bBlocks[i]
 	}
-	return trimLeadingZeros(blocksToHex(blocks))
+	return TrimLeadingZeros(blocksToHex(blocks))
 }
 
 func AND(a, b BigInt) string {
 	var length int
+	aBlocks := append([]uint64(nil), a.value...)
+	bBlocks := append([]uint64(nil), b.value...)
 
 	if len(a.value) == len(b.value) {
 		length = len(a.value)
 	} else if len(a.value) > len(b.value) {
 		length = len(a.value)
 		blocksNeeded := len(a.value) - len(b.value)
-		b.value = append(make([]uint64, blocksNeeded), b.value...)
+		bBlocks = append(make([]uint64, blocksNeeded), b.value...)
 	} else {
 		length = len(b.value)
 		blocksNeeded := len(b.value) - len(a.value)
-		a.value = append(make([]uint64, blocksNeeded), a.value...)
+		aBlocks = append(make([]uint64, blocksNeeded), a.value...)
 	}
 
 	blocks := make([]uint64, length)
 
 	for i := length - 1; i >= 0; i-- {
-		blocks[i] = a.value[i] & b.value[i]
+		blocks[i] = aBlocks[i] & bBlocks[i]
 	}
 	// not triming leading zeros!
 	return blocksToHex(blocks)
 }
 
 func ShiftL(a BigInt, bitsShift int) string {
-	blocks := a.value
+	blocks := append([]uint64(nil), a.value...)
 	// змінна для переносу зайвих бітів
 	var overflow uint64 = 0
 	for i := len(blocks) - 1; i >= 0; i-- {
@@ -216,11 +227,11 @@ func ShiftL(a BigInt, bitsShift int) string {
 		overflow >>= 8
 	}
 
-	return trimLeadingZeros(blocksToHex(blocks))
+	return TrimLeadingZeros(blocksToHex(blocks))
 }
 
 func ShiftR(a BigInt, bitsShift int) string {
-	blocks := a.value
+	blocks := append([]uint64(nil), a.value...)
 	// змінна для переносу зайвих бітів
 	var overflow uint64 = 0
 	for i := 0; i < len(blocks); i++ {
@@ -239,7 +250,7 @@ func ShiftR(a BigInt, bitsShift int) string {
 		blocks = blocks[1:]
 	}
 
-	return trimLeadingZeros(blocksToHex(blocks))
+	return TrimLeadingZeros(blocksToHex(blocks))
 }
 
 /*
@@ -308,7 +319,7 @@ func blocksToHex(blocks []uint64) string {
 	return hexString
 }
 
-func trimLeadingZeros(s string) string {
+func TrimLeadingZeros(s string) string {
 	i := 0
 	for ; i < len(s) && s[i] == '0'; i++ {
 	}
